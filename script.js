@@ -2,6 +2,8 @@ const canvas =  document.getElementById("canvas1");
 const ctx = canvas.getContext("2d");
 canvas.width = 900;
 canvas.height = 800;
+let enemiesArray = [];
+const numberOfEnemies = 10;
 
 
 class Player {
@@ -93,8 +95,32 @@ class InputHandler {
 	}
 }
 
+class Enemy {
+	constructor () {
+		this.y = 200;
+		this.spriteWidth = 310;
+		this.spriteHeight = 206;
+		this.width = this.spriteWidth/3;
+		this.height = this.spriteHeight/3;
+		this.image = enemyImage;
+		this.velocityEnemy = Math.random() * 6 + 1;
+		this.x = Math.random() * (canvas.width - this.width) ;
+	}
+
+	update(deltaTime) {
+		this.y += this.velocityEnemy; 
+		console.log(this.velocityEnemy);
+	}
+
+	draw() {
+							// sx,sy,sw,sh,dx,dy,dw,dh
+		ctx.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height)
+	}
+}
+
 const player = new Player();
-const inputHandler = new InputHandler;
+const inputHandler = new InputHandler();
+const enemy = new Enemy();
 
 let lastTime = 1;
 
@@ -104,6 +130,8 @@ function animate(timeStamp) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
 	player.update(deltaTime,inputHandler);
 	player.draw();
+	enemy.update(deltaTime);
+	enemy.draw();
 	requestAnimationFrame(animate);
 }
 
