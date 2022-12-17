@@ -165,9 +165,35 @@ class InputText {
 	}
 }
 
+class Shoot {
+
+	constructor() {
+		this.x = canvas.width/2;
+		this.y = canvas.height/2;
+		this.spriteWidth = 43;
+		this.spriteHeight = 117;
+		this.image = shootImage;
+		this.width = this.spriteWidth/2;
+		this.height = this.spriteHeight/2;
+	}
+
+	update(deltaTime){
+		this.y-= deltaTime/2;
+	}
+
+	draw() {
+		ctx.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.x, this.y,
+			this.width, this.height)
+	}
+
+
+
+}
+
 const player = new Player();
 const inputHandler = new InputHandler();
 const inputText = new InputText();
+const newShoot = new Shoot();
 
 let lastTime = 1;
 let timePerEnemy = 0;
@@ -180,6 +206,8 @@ function animate(timeStamp) {
 	player.draw();
 	inputText.update();
 	inputText.draw();
+	newShoot.update(deltaTime);
+	newShoot.draw();
 
 	timePerEnemy += deltaTime;
 	let intervalPerEnemy = 1000;
