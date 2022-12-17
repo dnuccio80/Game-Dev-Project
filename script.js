@@ -4,6 +4,7 @@ canvas.width = 900;
 canvas.height = 800;
 let enemiesArray = [];
 const numberOfEnemies = 10;
+let gameOver = false;
 
 
 class Player {
@@ -97,19 +98,23 @@ class InputHandler {
 
 class Enemy {
 	constructor () {
-		this.y = 200;
+		this.y = -50;
 		this.spriteWidth = 310;
 		this.spriteHeight = 206;
 		this.width = this.spriteWidth/3;
 		this.height = this.spriteHeight/3;
 		this.image = enemyImage;
 		this.velocityEnemy = Math.random() * 6 + 1;
-		this.x = Math.random() * (canvas.width - this.width) ;
+		this.x = Math.random() * (canvas.width - this.width);
+		this.markedForDeletion = false;
 	}
 
 	update(deltaTime) {
 		this.y += this.velocityEnemy; 
-		console.log(this.velocityEnemy);
+		if(this.y > canvas.height) {
+			this.markedForDeletion = true;
+			gameOver = true	
+		} 
 	}
 
 	draw() {
@@ -120,9 +125,15 @@ class Enemy {
 
 const player = new Player();
 const inputHandler = new InputHandler();
-const enemy = new Enemy();
+// const enemy = new Enemy();
+
+// for (i = 0; i < numberOfEnemies; i++) {
+// 	enemiesArray.push(new Enemy())
+// }
+
 
 let lastTime = 1;
+let timePerEnemy = 0;
 
 function animate(timeStamp) {
 	const deltaTime = timeStamp - lastTime;
@@ -130,8 +141,21 @@ function animate(timeStamp) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
 	player.update(deltaTime,inputHandler);
 	player.draw();
-	enemy.update(deltaTime);
-	enemy.draw();
+
+	
+	timePerEnemy += deltaTime;
+	let intervalPerEnemy = 1000;
+
+	if(timePerEnemy > intervalPerEnemy) {
+		enemiesArray.push(new Enemy())
+		timePerEnemy = 0;
+	}
+
+	enemiesArray.forEach( elem => {
+		elem.update(deltaTime);
+		elem.draw();
+	});
+	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
 	requestAnimationFrame(animate);
 }
 
