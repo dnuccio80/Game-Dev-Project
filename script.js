@@ -10,8 +10,8 @@ class Player {
 		this.y = 200;
 		this.spriteWidth = 440;
 		this.spriteHeight = 522;
-		this.width = this.spriteWidth/4;
-		this.height = this.spriteHeight/4;
+		this.width = this.spriteWidth/5;
+		this.height = this.spriteHeight/5;
 		this.image = playerImage;
 		this.frame = 0;
 		this.interval = 20;
@@ -19,6 +19,7 @@ class Player {
 	}
 
 	update(deltaTime) {
+		//Control de Frames Animation de player
 		this.frameInterval += deltaTime;
 		if(this.frameInterval >= this.interval) {
 			this.frame<15 ? this.frame++ : this.frame = 0;
@@ -32,6 +33,10 @@ class Player {
 		ctx.drawImage(this.image, this.frame * this.spriteWidth, 0 , this.spriteWidth, this.spriteHeight,
 			this.x, this.y, this.width, this.height )
 	}
+}
+
+class InputHandler {
+	
 }
 
 const player = new Player();
