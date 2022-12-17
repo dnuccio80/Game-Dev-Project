@@ -114,7 +114,7 @@ class Enemy {
 	update(deltaTime) {
 		this.y += this.velocityEnemy; 
 		if(this.y > canvas.height) {
-			score++;
+			// score++;
 			this.markedForDeletion = true;
 			lifes--;
 		} 
@@ -133,7 +133,6 @@ class InputText {
 		this.width = this.spriteWidth/2;
 		this.height = this.spriteHeight/2;
 		this.imageRed = heartImage;
-		// this.lifes = 3;
 	}
 
 	update() {
@@ -190,10 +189,10 @@ function animate(timeStamp) {
 		timePerEnemy = 0;
 	}
 
-	enemiesArray.forEach( elem => {
-		elem.update(deltaTime);
-		elem.draw();
-	});
+	// enemiesArray.forEach( elem => {
+	// 	elem.update(deltaTime);
+	// 	elem.draw();
+	// });
 	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
  	// if(!gameOver){
  	// 	requestAnimationFrame(animate);
