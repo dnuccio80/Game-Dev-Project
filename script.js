@@ -7,6 +7,7 @@ const numberOfEnemies = 10;
 let gameOver = false;
 let lifes = 3;
 let score = 0;
+let shootArray = [];
 
 
 class Player {
@@ -66,38 +67,6 @@ class Player {
 	}
 }
 
-class InputHandler {
-	
-	constructor() {
-
-		this.keys = [];
-
-		window.addEventListener('keydown', e => {
-	
-			if( (e.key === "ArrowUp"    ||
-				 e.key === "ArrowDown"  || 
-				 e.key === "ArrowLeft"  || 
-				 e.key === "ArrowRight" ) &&
-				 this.keys.indexOf(e.key) === -1  ) {
-				this.keys.push(e.key);
-
-			}
-			console.log(this.keys);
-		});
-
-		window.addEventListener('keyup', e => {
-			if ( e.key === "ArrowUp"    ||
-				 e.key === "ArrowDown"  ||
-				 e.key === "ArrowLeft"  ||
-				 e.key === "ArrowRight"
-				) {
-				this.keys.splice(e.key, 1);
-			}
-			console.log(this.keys);
-		});
-	}
-}
-
 class Enemy {
 	constructor () {
 		this.y = -50;
@@ -123,6 +92,72 @@ class Enemy {
 	draw() {
 							// sx,sy,sw,sh,dx,dy,dw,dh
 		ctx.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height)
+	}
+}
+
+class Shoot {
+
+	constructor() {
+		this.spriteWidth = 43;
+		this.spriteHeight = 117;
+		this.image = shootImage;
+		this.width = this.spriteWidth/2;
+		this.height = this.spriteHeight/2;
+		this.x = player.x + player.width/4;
+		this.y = player.y + player.height/4;
+	}
+
+	update(deltaTime, player){
+		this.y-= deltaTime;
+		if(this.y < 0) {
+			this.markedForDeletion = true;
+		} 
+	}
+
+	draw() {
+		ctx.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.x, this.y,
+			this.width, this.height)
+	}
+
+}
+
+class InputHandler {
+	
+	constructor() {
+
+		this.keys = [];
+
+		window.addEventListener('keydown', e => {
+	
+			if( (e.key === "ArrowUp"    ||
+				 e.key === "ArrowDown"  || 
+				 e.key === "ArrowLeft"  || 
+				 e.key === "ArrowRight" ||
+				 e.key === "z"  ) &&
+				 this.keys.indexOf(e.key) === -1  ) {
+				this.keys.push(e.key);
+
+			}
+			console.log(this.keys);
+		});
+
+		window.addEventListener('keyup', e => {
+			if (   e.key === "ArrowUp"    ||
+				   e.key === "ArrowDown"  ||
+				   e.key === "ArrowLeft"  ||
+				   e.key === "ArrowRight" ||
+				   e.key === "z" ) {
+
+				this.keys.splice(this.keys.indexOf(e.key), 1);
+			} 
+			console.log(this.keys);
+		});
+
+		window.addEventListener('keydown', e => {
+			if( e.key === "z" ) {
+				shootArray.push(new Shoot());
+			}
+		});
 	}
 }
 
@@ -165,35 +200,10 @@ class InputText {
 	}
 }
 
-class Shoot {
-
-	constructor() {
-		this.x = canvas.width/2;
-		this.y = canvas.height;
-		this.spriteWidth = 43;
-		this.spriteHeight = 117;
-		this.image = shootImage;
-		this.width = this.spriteWidth/2;
-		this.height = this.spriteHeight/2;
-	}
-
-	update(deltaTime){
-		this.y-= deltaTime;
-	}
-
-	draw() {
-		ctx.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.x, this.y,
-			this.width, this.height)
-	}
-
-
-
-}
-
 const player = new Player();
 const inputHandler = new InputHandler();
 const inputText = new InputText();
-const newShoot = new Shoot();
+// const newShoot = new Shoot();
 
 let lastTime = 1;
 let timePerEnemy = 0;
@@ -206,21 +216,26 @@ function animate(timeStamp) {
 	player.draw();
 	inputText.update();
 	inputText.draw();
-	newShoot.update(deltaTime);
-	newShoot.draw();
+	// newShoot.update(deltaTime);
+	// newShoot.draw();
+	shootArray.forEach( elem => {
+		elem.update(deltaTime, player);
+		elem.draw();
+	});
 
 	timePerEnemy += deltaTime;
 	let intervalPerEnemy = 1000;
 
-	if(timePerEnemy > intervalPerEnemy) {
-		enemiesArray.push(new Enemy())
-		timePerEnemy = 0;
-	}
+	// if(timePerEnemy > intervalPerEnemy) {
+	// 	enemiesArray.push(new Enemy())
+	// 	timePerEnemy = 0;
+	// }
 
 	// enemiesArray.forEach( elem => {
 	// 	elem.update(deltaTime);
 	// 	elem.draw();
 	// });
+	shootArray = shootArray.filter(elem => !elem.markedForDeletion);
 	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
  	// if(!gameOver){
  	// 	requestAnimationFrame(animate);
