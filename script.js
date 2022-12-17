@@ -21,7 +21,7 @@ class Player {
 		this.frame = 0;
 		this.interval = 20;
 		this.frameInterval = 0;
-		this.velocityPlayer = 5;
+		this.velocityPlayer = 7;
 	}
 
 	update(deltaTime, inputHandler) {
