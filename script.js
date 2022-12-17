@@ -169,7 +169,7 @@ class Shoot {
 
 	constructor() {
 		this.x = canvas.width/2;
-		this.y = canvas.height/2;
+		this.y = canvas.height;
 		this.spriteWidth = 43;
 		this.spriteHeight = 117;
 		this.image = shootImage;
@@ -178,7 +178,7 @@ class Shoot {
 	}
 
 	update(deltaTime){
-		this.y-= deltaTime/2;
+		this.y-= deltaTime;
 	}
 
 	draw() {
