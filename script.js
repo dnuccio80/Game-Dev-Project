@@ -226,15 +226,15 @@ function animate(timeStamp) {
 	timePerEnemy += deltaTime;
 	let intervalPerEnemy = 1000;
 
-	// if(timePerEnemy > intervalPerEnemy) {
-	// 	enemiesArray.push(new Enemy())
-	// 	timePerEnemy = 0;
-	// }
+	if(timePerEnemy > intervalPerEnemy) {
+		enemiesArray.push(new Enemy())
+		timePerEnemy = 0;
+	}
 
-	// enemiesArray.forEach( elem => {
-	// 	elem.update(deltaTime);
-	// 	elem.draw();
-	// });
+	enemiesArray.forEach( elem => {
+		elem.update(deltaTime);
+		elem.draw();
+	});
 	shootArray = shootArray.filter(elem => !elem.markedForDeletion);
 	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
  	// if(!gameOver){
