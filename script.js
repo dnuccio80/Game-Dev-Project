@@ -5,17 +5,19 @@ canvas.height = 800;
 let enemiesArray = [];
 const numberOfEnemies = 10;
 let gameOver = false;
+let lifes = 3;
+let score = 0;
 
 
 class Player {
 	constructor() {
-		this.x = 200;
-		this.y = 200;
 		this.spriteWidth = 440;
 		this.spriteHeight = 522;
 		this.width = this.spriteWidth/5;
 		this.height = this.spriteHeight/5;
 		this.image = playerImage;
+		this.x = canvas.width/2 - this.width/3;
+		this.y = canvas.height - this.height;
 		this.frame = 0;
 		this.interval = 20;
 		this.frameInterval = 0;
@@ -112,8 +114,9 @@ class Enemy {
 	update(deltaTime) {
 		this.y += this.velocityEnemy; 
 		if(this.y > canvas.height) {
+			score++;
 			this.markedForDeletion = true;
-			gameOver = true	
+			lifes--;
 		} 
 	}
 
@@ -123,14 +126,49 @@ class Enemy {
 	}
 }
 
+class InputText {
+	constructor(){
+		this.spriteWidth = 96;
+		this.spriteHeight = 96
+		this.width = this.spriteWidth/2;
+		this.height = this.spriteHeight/2;
+		this.imageRed = heartImage;
+		// this.lifes = 3;
+	}
+
+	update() {
+		if(lifes == 0) gameOver = true;
+	}
+
+	draw() {
+
+		for ( var i = 1; i <= lifes; i++) {
+			ctx.drawImage(this.imageRed, 0, 0, this.spriteWidth, this.spriteHeight, i * 50, 50, 
+				this.width, this.height );
+		}
+
+		ctx.save();
+		ctx.fillStyle = "#fff";
+		ctx.font = "40px Helvetica"
+		ctx.fillText(`Score: ${score}`, canvas.width - 250 , 80 );
+		ctx.restore();
+	}
+
+	drawGameOver() {
+		ctx.save();
+		ctx.textAlign = "center"
+		ctx.font = "40px Helvetica"
+		ctx.fillStyle = "#000"
+		ctx.fillText("Gamer Over! Try Again :)", canvas.width/2 + 4, canvas.height/2 + 4)
+		ctx.fillStyle = "#fff"
+		ctx.fillText("Gamer Over! Try Again :)", canvas.width/2 , canvas.height/2)
+		ctx.restore();
+	}
+}
+
 const player = new Player();
 const inputHandler = new InputHandler();
-// const enemy = new Enemy();
-
-// for (i = 0; i < numberOfEnemies; i++) {
-// 	enemiesArray.push(new Enemy())
-// }
-
+const inputText = new InputText();
 
 let lastTime = 1;
 let timePerEnemy = 0;
@@ -141,8 +179,9 @@ function animate(timeStamp) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
 	player.update(deltaTime,inputHandler);
 	player.draw();
+	inputText.update();
+	inputText.draw();
 
-	
 	timePerEnemy += deltaTime;
 	let intervalPerEnemy = 1000;
 
@@ -156,7 +195,12 @@ function animate(timeStamp) {
 		elem.draw();
 	});
 	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
-	requestAnimationFrame(animate);
+ 	// if(!gameOver){
+ 	// 	requestAnimationFrame(animate);
+ 	// } else {
+ 	// 	inputText.drawGameOver();
+ 	// }
+ 	requestAnimationFrame(animate);
 }
 
 animate(0);
