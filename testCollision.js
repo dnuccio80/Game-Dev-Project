@@ -137,7 +137,7 @@ class Enemy {
 		// console.log(`Diferencia en Y ${this.collisionY}`);
 		shootArray.forEach( elem => {
 			if (elem.y < this.y) this.markedForDeletion; 
-			
+
 		});
 	}
 
@@ -160,7 +160,7 @@ class Enemy {
 		// if(this.collisionanY) console.log("Estan colisionando en Y");
 		// else console.log("No estan colisionando en Y");
 		if(this.collisionanX && this.collisionanY) {
-			console.log("Estan colisionando gaturro");
+			console.log("Estan colisionando zgaturro");
 			this.markedForDeletion = true;	
 		} 
 		else console.log("No colisionan pai");
