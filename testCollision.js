@@ -88,8 +88,8 @@ class Enemy {
 		this.height = this.spriteHeight/3;
 		this.image = enemyImage;
 		this.velocityEnemy = Math.random() * 6 + 1;
-		// this.x = Math.random() * (canvas.width - this.width);
-		this.x  = canvas.width/2
+		this.x = Math.random() * (canvas.width - this.width);
+		// this.x  = canvas.width/2
 		this.y = canvas.height / 2;
 		this.markedForDeletion = false;
 		this.oY;
@@ -135,19 +135,23 @@ class Enemy {
 		// console.log(`Ocupation Y: ${this.oY}`);
 		// console.log(`Diferencia en X: ${this.collisionX}`);
 		// console.log(`Diferencia en Y ${this.collisionY}`);
+		shootArray.forEach( elem => {
+			if (elem.y < this.y) this.markedForDeletion; 
+			
+		});
 	}
 
 	MostraChocan() {
 		if(this.collisionY <= 0 && this.collisionY >= -(this.height + player.height) ) {
 			this.collisionanY = true
 		} else {
-			this.collisionanY = false;
+			// this.collisionanY = false;
 		}
 
 		if(this.collisionX <= 0 &&  this.collisionX >= -(this.width + player.width) ) {
 			this.collisionanX = true
 		} else {
-			this.collisionanX = false;
+			// this.collisionanX = false;
 			
 		}
 
@@ -183,6 +187,7 @@ class Shoot {
 	}
 
 	draw() {
+		ctx.strokeRect(this.x, this.y, this.width, this.height);
 		ctx.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.x, this.y,
 			this.width, this.height)
 	}
@@ -224,7 +229,7 @@ class InputHandler {
 
 		window.addEventListener('keydown', e => {
 			if( e.key === "z" ) {
-				// shootArray.push(new Shoot());
+				shootArray.push(new Shoot());
 				enemiesArray.forEach( elem => {
 					elem.mostraOcupation();
 					elem.MostraChocan();
@@ -244,7 +249,11 @@ class InputHandler {
 
 const player = new Player();
 const inputHandler = new InputHandler();
-enemiesArray.push(new Enemy(player));
+
+for ( i = 0 ; i < 3; i++ ) {
+	enemiesArray.push(new Enemy(player));
+
+}
 
 let lastTime = 1;
 
@@ -255,10 +264,14 @@ function animate(timeStamp) {
 	player.update(deltaTime,inputHandler);
 	player.draw();
 	enemiesArray.forEach( elem => {
-		elem.update();
+		elem.update(shootArray);
 		elem.draw();
 	});
-	// shootArray = shootArray.filter(elem => !elem.markedForDeletion);
+	shootArray.forEach( elem => {
+		elem.update(deltaTime, player);
+		elem.draw();
+	});
+	shootArray = shootArray.filter(elem => !elem.markedForDeletion);
 	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
  	requestAnimationFrame(animate);
 }
