@@ -2,12 +2,13 @@ const canvas =  document.getElementById("canvas1");
 const ctx = canvas.getContext("2d");
 canvas.width = 900;
 canvas.height = 800;
-let enemiesArray = [];
 const numberOfEnemies = 30;
 let gameOver = false;
 let lifes = 3;
 let score = 0;
+let enemiesArray = [];
 let shootArray = [];
+let explosionArray = [];
 
 
 class Player {
@@ -147,6 +148,7 @@ class Shoot {
 				enemy.markedForDeletion = true;
 				this.markedForDeletion = true;
 				score++;
+				explosionArray.push(new Explosion());
 			} 
 		});
 	}
@@ -156,6 +158,35 @@ class Shoot {
 			this.width, this.height)
 	}
 
+}
+
+class Explosion {
+
+	constructor () {
+		this.x;
+		this.y;
+		this.spriteWidth = 200;
+		this.spriteHeight = 179;
+		this.width = this.spriteWidth/2;
+		this.height = this.spriteHeight/2;
+		this.frame = 0;
+		this.image = boomImage;
+		this.audio = new Audio();
+		this.audio.src = "boom.wav";
+		this.markedForDeletion = false;
+	}
+
+	update () {
+
+		this.frame++;
+		if(this.frame > 4) this.markedForDeletion = true;
+	}
+
+	draw (enemy) {
+						//sx,sy,sw,sh,dx,dy,dw,dh
+		ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth,this.spriteHeight,
+			enemy.x,enemy.y,enemy.width,enemy.height)
+	}
 }
 
 class InputHandler {
