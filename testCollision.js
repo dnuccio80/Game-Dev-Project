@@ -2,12 +2,8 @@ const canvas =  document.getElementById("canvas1");
 const ctx = canvas.getContext("2d");
 canvas.width = 900;
 canvas.height = 800;
-let enemiesArray = [];
-const numberOfEnemies = 30;
-let gameOver = false;
-let lifes = 3;
-let score = 0;
 let shootArray = [];
+let enemiesArray = [];
 
 
 class Player {
@@ -22,7 +18,9 @@ class Player {
 		this.frame = 0;
 		this.interval = 20;
 		this.frameInterval = 0;
-		this.velocityPlayer = 7;
+		this.velocityPlayer = 3;
+		this.oX;
+		this.oY;
 	}
 
 	update(deltaTime, inputHandler) {
@@ -57,19 +55,33 @@ class Player {
 		if (inputHandler.keys.indexOf("ArrowDown") > -1) {
 			this.y += this.velocityPlayer;
 		}
+
+		//Collision Handler
+
+		this.oX = this.x + this.width;
+		this.oY = this.y + this.height;
 	}
 
 	draw() {
-		// ctx.fillRect(this.x, this.y, this.width, this.height)
+		ctx.strokeStyle = "#fff";
+		ctx.strokeRect(this.x, this.y, this.width, this.height)
 		// 							sx,sy,sw,sh,dx,dy,dw,dh
 		ctx.drawImage(this.image, this.frame * this.spriteWidth, 0 , this.spriteWidth, this.spriteHeight,
 			this.x, this.y, this.width, this.height )
+	}
+
+	mostraOcupation () {
+		console.log(`This.x: ${this.x}`);
+		console.log(`This.width: ${this.width}`);
+		console.log(`Ocupation X: ${this.oX}`);
+		console.log(`This.y: ${this.y}`);
+		console.log(`This.height: ${this.height}`);
+		console.log(`Ocupation Y: ${this.oY}`);
 	}
 }
 
 class Enemy {
 	constructor () {
-		this.y = -50;
 		this.spriteWidth = 310;
 		this.spriteHeight = 206;
 		this.width = this.spriteWidth/3;
@@ -77,28 +89,81 @@ class Enemy {
 		this.image = enemyImage;
 		this.velocityEnemy = Math.random() * 6 + 1;
 		this.x = Math.random() * (canvas.width - this.width);
+		// this.x  = canvas.width/2
+		this.y = canvas.height / 2;
 		this.markedForDeletion = false;
-		this.oX;
 		this.oY;
-		this.colisionanX = false;
-		this.colisionanY = false;
+		this.oX;
+		this.collisionX;
+		this.collisionY;
+		this.collisionanX = false;
+		this.collisionanY = false;
+
 	}
 
 	update(deltaTime) {
-		this.y += this.velocityEnemy; 
+		// this.y += this.velocityEnemy; 
 		if(this.y > canvas.height) {
-			// score++;
 			this.markedForDeletion = true;
-			lifes--;
 		} 
 
 		this.oX = this.x + this.width;
 		this.oY = this.y + this.height;
+
+		this.collisionX = this.x - player.oX; 
+		this.collisionY = player.y - this.oY;
+
+		// if(this.markedForDeletion) {
+		// 	console.log("enemigo morreu");
+		// }
+
 	}
 
-	draw() {
+	draw () {
+		ctx.strokeStyle = "#fff";
+		ctx.strokeRect(this.x, this.y, this.width, this.height)
 							// sx,sy,sw,sh,dx,dy,dw,dh
 		ctx.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height)
+	}
+
+	mostraOcupation () {
+		// console.log(`This.x: ${this.x}`);
+		// console.log(`This.width: ${this.width}`);
+		// console.log(`Ocupation X: ${this.oX}`);
+		// console.log(`This.y: ${this.y}`);
+		// console.log(`This.height: ${this.height}`);
+		// console.log(`Ocupation Y: ${this.oY}`);
+		// console.log(`Diferencia en X: ${this.collisionX}`);
+		// console.log(`Diferencia en Y ${this.collisionY}`);
+		shootArray.forEach( elem => {
+			if (elem.y < this.y) this.markedForDeletion; 
+
+		});
+	}
+
+	MostraChocan() {
+		if(this.collisionY <= 0 && this.collisionY >= -(this.height + player.height) ) {
+			this.collisionanY = true
+		} else {
+			// this.collisionanY = false;
+		}
+
+		if(this.collisionX <= 0 &&  this.collisionX >= -(this.width + player.width) ) {
+			this.collisionanX = true
+		} else {
+			// this.collisionanX = false;
+			
+		}
+
+		// if (this.collisionanX) console.log("Estan colisionando en X");
+		// else console.log("No estan colisionando en X");
+		// if(this.collisionanY) console.log("Estan colisionando en Y");
+		// else console.log("No estan colisionando en Y");
+		if(this.collisionanX && this.collisionanY) {
+			console.log("Estan colisionando zgaturro");
+			this.markedForDeletion = true;	
+		} 
+		else console.log("No colisionan pai");
 	}
 }
 
@@ -112,46 +177,17 @@ class Shoot {
 		this.height = this.spriteHeight/2;
 		this.x = player.x + player.width/4;
 		this.y = player.y + player.height/4;
-		this.markedForDeletion = false;
-		this.oX;
-		this.oY;
-		this.colisionanX = false;
-		this.colisionanY = false;
 	}
 
-	update(deltaTime, player, enemiesArray){
+	update(deltaTime, player){
 		this.y-= deltaTime;
 		if(this.y < 0) {
 			this.markedForDeletion = true;
 		} 
-
-
-		this.oX = this.x + this.width;
-		this.oY = this.y + this.height;
-
-		enemiesArray.forEach( enemy => {
-			let distanceY = this.y - enemy.oY;
-			let distanceX = enemy.x - this.oX;
-
-			if(distanceX <= 0 && distanceX >= -(enemy.width + this.width)) {
-				this.colisionanX = true;
-			} else {
-				this.colisionanX = false;	
-			} 
-
-			if (distanceY <= 0 && distanceY >= -(enemy.height + this.height)) this.colisionanY = true;
-			else this.colisionanY = false;
-			
-
-			if(this.colisionanX && this.colisionanY) {
-				enemy.markedForDeletion = true;
-				this.markedForDeletion = true;
-				score++;
-			} 
-		});
 	}
 
 	draw() {
+		ctx.strokeRect(this.x, this.y, this.width, this.height);
 		ctx.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.x, this.y,
 			this.width, this.height)
 	}
@@ -175,6 +211,7 @@ class InputHandler {
 				this.keys.push(e.key);
 
 			}
+			console.log(this.keys);
 		});
 
 		window.addEventListener('keyup', e => {
@@ -182,67 +219,43 @@ class InputHandler {
 				   e.key === "ArrowDown"  ||
 				   e.key === "ArrowLeft"  ||
 				   e.key === "ArrowRight" ||
-				   e.key === "z" ) {
+				   e.key === "z" 		  ||
+				   e.key === "x") {
 
 				this.keys.splice(this.keys.indexOf(e.key), 1);
 			} 
+			console.log(this.keys);
 		});
 
 		window.addEventListener('keydown', e => {
 			if( e.key === "z" ) {
 				shootArray.push(new Shoot());
+				enemiesArray.forEach( elem => {
+					elem.mostraOcupation();
+					elem.MostraChocan();
+				});
+				
+			}
+		});
+
+		window.addEventListener('keydown', e => {
+			if( e.key === "x" ) {
+				// shootArray.push(new Shoot());
+				player.mostraOcupation();
 			}
 		});
 	}
 }
 
-class InputText {
-	constructor(){
-		this.spriteWidth = 96;
-		this.spriteHeight = 96
-		this.width = this.spriteWidth/2;
-		this.height = this.spriteHeight/2;
-		this.imageRed = heartImage;
-	}
-
-	update() {
-		if(lifes == 0) gameOver = true;
-	}
-
-	draw() {
-
-		for ( var i = 1; i <= lifes; i++) {
-			ctx.drawImage(this.imageRed, 0, 0, this.spriteWidth, this.spriteHeight, i * 50, 50, 
-				this.width, this.height );
-		}
-
-		ctx.save();
-		ctx.fillStyle = "#fff";
-		ctx.font = "40px Helvetica"
-		ctx.fillText(`Score: ${score}`, canvas.width - 250 , 80 );
-		ctx.restore();
-	}
-
-	drawGameOver() {
-		ctx.save();
-		ctx.textAlign = "center"
-		ctx.font = "40px Helvetica"
-		ctx.fillStyle = "#000"
-		ctx.fillText("Gamer Over! Try Again :)", canvas.width/2 + 4, canvas.height/2 + 4)
-		ctx.fillStyle = "#fff"
-		ctx.fillText("Gamer Over! Try Again :)", canvas.width/2 , canvas.height/2)
-		ctx.restore();
-	}
-}
-
 const player = new Player();
 const inputHandler = new InputHandler();
-const inputText = new InputText();
-// const newShoot = new Shoot();
+
+for ( i = 0 ; i < 3; i++ ) {
+	enemiesArray.push(new Enemy(player));
+
+}
 
 let lastTime = 1;
-let timePerEnemy = 0;
-let intervalPerEnemy = 1500;
 
 function animate(timeStamp) {
 	const deltaTime = timeStamp - lastTime;
@@ -250,41 +263,17 @@ function animate(timeStamp) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
 	player.update(deltaTime,inputHandler);
 	player.draw();
-	inputText.update();
-	inputText.draw();
-	// newShoot.update(deltaTime);
-	// newShoot.draw();
-	shootArray.forEach( elem => {
-		elem.update(deltaTime, player, enemiesArray);
+	enemiesArray.forEach( elem => {
+		elem.update(shootArray);
 		elem.draw();
 	});
-
-	timePerEnemy += deltaTime;
-	
-
-	if(score > 20 && score <= 40) intervalPerEnemy = 1200;
-	else if ( score > 40 && score <= 60) intervalPerEnemy = 1000;
-	else if ( score > 60 && score <= 80) intervalPerEnemy = 800;
-	else if ( score > 80 && score <= 100) intervalPerEnemy = 600;
-	else if ( score > 100) intervalPerEnemy = 300;
-
-	if(timePerEnemy > intervalPerEnemy) {
-		enemiesArray.push(new Enemy())
-		timePerEnemy = 0;
-	}
-
-	enemiesArray.forEach( elem => {
-		elem.update(deltaTime);
+	shootArray.forEach( elem => {
+		elem.update(deltaTime, player);
 		elem.draw();
 	});
 	shootArray = shootArray.filter(elem => !elem.markedForDeletion);
 	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
- 	if(!gameOver){
- 		requestAnimationFrame(animate);
- 	} else {
- 		inputText.drawGameOver();
- 	}
- 	// requestAnimationFrame(animate);
+ 	requestAnimationFrame(animate);
 }
 
 animate(0);
