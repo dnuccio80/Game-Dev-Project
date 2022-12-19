@@ -3,7 +3,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = 900;
 canvas.height = 800;
 let enemiesArray = [];
-const numberOfEnemies = 10;
+const numberOfEnemies = 30;
 let gameOver = false;
 let lifes = 3;
 let score = 0;
@@ -78,6 +78,10 @@ class Enemy {
 		this.velocityEnemy = Math.random() * 6 + 1;
 		this.x = Math.random() * (canvas.width - this.width);
 		this.markedForDeletion = false;
+		this.oX;
+		this.oY;
+		this.colisionanX = false;
+		this.colisionanY = false;
 	}
 
 	update(deltaTime) {
@@ -87,6 +91,9 @@ class Enemy {
 			this.markedForDeletion = true;
 			lifes--;
 		} 
+
+		this.oX = this.x + this.width;
+		this.oY = this.y + this.height;
 	}
 
 	draw() {
@@ -105,13 +112,43 @@ class Shoot {
 		this.height = this.spriteHeight/2;
 		this.x = player.x + player.width/4;
 		this.y = player.y + player.height/4;
+		this.markedForDeletion = false;
+		this.oX;
+		this.oY;
+		this.colisionanX = false;
+		this.colisionanY = false;
 	}
 
-	update(deltaTime, player){
+	update(deltaTime, player, enemiesArray){
 		this.y-= deltaTime;
 		if(this.y < 0) {
 			this.markedForDeletion = true;
 		} 
+
+
+		this.oX = this.x + this.width;
+		this.oY = this.y + this.height;
+
+		enemiesArray.forEach( enemy => {
+			let distanceY = this.y - enemy.oY;
+			let distanceX = enemy.x - this.oX;
+
+			if(distanceX <= 0 && distanceX >= -(enemy.width + this.width)) {
+				this.colisionanX = true;
+			} else {
+				this.colisionanX = false;	
+			} 
+
+			if (distanceY <= 0 && distanceY >= -(enemy.height + this.height)) this.colisionanY = true;
+			else this.colisionanY = false;
+			
+
+			if(this.colisionanX && this.colisionanY) {
+				enemy.markedForDeletion = true;
+				this.markedForDeletion = true;
+				score++;
+			} 
+		});
 	}
 
 	draw() {
@@ -138,7 +175,6 @@ class InputHandler {
 				this.keys.push(e.key);
 
 			}
-			console.log(this.keys);
 		});
 
 		window.addEventListener('keyup', e => {
@@ -150,7 +186,6 @@ class InputHandler {
 
 				this.keys.splice(this.keys.indexOf(e.key), 1);
 			} 
-			console.log(this.keys);
 		});
 
 		window.addEventListener('keydown', e => {
@@ -207,6 +242,7 @@ const inputText = new InputText();
 
 let lastTime = 1;
 let timePerEnemy = 0;
+let intervalPerEnemy = 1500;
 
 function animate(timeStamp) {
 	const deltaTime = timeStamp - lastTime;
@@ -219,12 +255,18 @@ function animate(timeStamp) {
 	// newShoot.update(deltaTime);
 	// newShoot.draw();
 	shootArray.forEach( elem => {
-		elem.update(deltaTime, player);
+		elem.update(deltaTime, player, enemiesArray);
 		elem.draw();
 	});
 
 	timePerEnemy += deltaTime;
-	let intervalPerEnemy = 1000;
+	
+
+	if(score > 20 && score <= 40) intervalPerEnemy = 1200;
+	else if ( score > 40 && score <= 60) intervalPerEnemy = 1000;
+	else if ( score > 60 && score <= 80) intervalPerEnemy = 800;
+	else if ( score > 80 && score <= 100) intervalPerEnemy = 600;
+	else if ( score > 100) intervalPerEnemy = 300;
 
 	if(timePerEnemy > intervalPerEnemy) {
 		enemiesArray.push(new Enemy())
@@ -237,12 +279,12 @@ function animate(timeStamp) {
 	});
 	shootArray = shootArray.filter(elem => !elem.markedForDeletion);
 	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
- 	// if(!gameOver){
- 	// 	requestAnimationFrame(animate);
- 	// } else {
- 	// 	inputText.drawGameOver();
- 	// }
- 	requestAnimationFrame(animate);
+ 	if(!gameOver){
+ 		requestAnimationFrame(animate);
+ 	} else {
+ 		inputText.drawGameOver();
+ 	}
+ 	// requestAnimationFrame(animate);
 }
 
 animate(0);
