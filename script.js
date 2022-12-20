@@ -9,6 +9,28 @@ let score = 0;
 let enemiesArray = [];
 let shootArray = [];
 let explosionArray = [];
+let gamePlay = false;
+
+//Front End handlers
+const gotIt = document.getElementById("gotIt");
+const modalHowToPlay = document.querySelector('.modalHowToPlay');
+const buttonStart = document.querySelector('.buttonStart');
+const buttonHowTo = document.querySelector('.buttonHowTo');
+
+gotIt.addEventListener('click', () => {
+	modalHowToPlay.style.display = "none";
+});
+
+buttonHowTo.addEventListener('click', ()=> {
+	modalHowToPlay.style.display = "block";
+});
+
+buttonStart.addEventListener('click', ()=> {
+	modalGame.style.display = "none";
+	gamePlay = true;
+	gameOver = false;
+	animate(0);
+});
 
 
 class Player {
@@ -322,7 +344,7 @@ function animate(timeStamp) {
 	explosionArray = explosionArray.filter(elem => !elem.markedForDeletion);
 	shootArray = shootArray.filter(elem => !elem.markedForDeletion);
 	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
- 	if(!gameOver){
+ 	if(!gameOver && gamePlay ){
  		requestAnimationFrame(animate);
  	} else {
  		inputText.drawGameOver();
