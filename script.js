@@ -148,7 +148,7 @@ class Shoot {
 				enemy.markedForDeletion = true;
 				this.markedForDeletion = true;
 				score++;
-				explosionArray.push(new Explosion());
+				explosionArray.push(new Explosion(enemy.x, enemy.y, enemy.width));
 			} 
 		});
 	}
@@ -162,9 +162,10 @@ class Shoot {
 
 class Explosion {
 
-	constructor () {
-		this.x;
-		this.y;
+	constructor (x, y, size) {
+		this.x = x;
+		this.y = y;
+		this.size = size;
 		this.spriteWidth = 200;
 		this.spriteHeight = 179;
 		this.width = this.spriteWidth/2;
@@ -177,15 +178,16 @@ class Explosion {
 	}
 
 	update () {
-
+		if(this.frame == 0) this.audio.play();
 		this.frame++;
 		if(this.frame > 4) this.markedForDeletion = true;
+
 	}
 
-	draw (enemy) {
+	draw () {
 						//sx,sy,sw,sh,dx,dy,dw,dh
 		ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth,this.spriteHeight,
-			enemy.x,enemy.y,enemy.width,enemy.height)
+			this.x,this.y,this.size,this.size)
 	}
 }
 
@@ -263,6 +265,7 @@ class InputText {
 		ctx.fillStyle = "#fff"
 		ctx.fillText("Gamer Over! Try Again :)", canvas.width/2 , canvas.height/2)
 		ctx.restore();
+		ctx.save();
 	}
 }
 
@@ -297,7 +300,8 @@ function animate(timeStamp) {
 	else if ( score > 40 && score <= 60) intervalPerEnemy = 1000;
 	else if ( score > 60 && score <= 80) intervalPerEnemy = 800;
 	else if ( score > 80 && score <= 100) intervalPerEnemy = 600;
-	else if ( score > 100) intervalPerEnemy = 300;
+	else if ( score > 100 && score <= 120) intervalPerEnemy = 300;
+	else if ( score > 120)  intervalPerEnemy = 150;
 
 	if(timePerEnemy > intervalPerEnemy) {
 		enemiesArray.push(new Enemy())
@@ -308,6 +312,14 @@ function animate(timeStamp) {
 		elem.update(deltaTime);
 		elem.draw();
 	});
+
+	explosionArray.forEach( elem => {
+		elem.draw();
+		elem.update();
+	});
+
+
+	explosionArray = explosionArray.filter(elem => !elem.markedForDeletion);
 	shootArray = shootArray.filter(elem => !elem.markedForDeletion);
 	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
  	if(!gameOver){
