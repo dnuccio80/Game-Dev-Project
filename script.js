@@ -200,7 +200,7 @@ class Explosion {
 	}
 
 	update () {
-		if(this.frame == 0) this.audio.play();
+		// if(this.frame == 0) this.audio.play();
 		this.frame++;
 		if(this.frame > 4) this.markedForDeletion = true;
 
@@ -347,7 +347,9 @@ function animate(timeStamp) {
  	if(!gameOver && gamePlay ){
  		requestAnimationFrame(animate);
  	} else {
- 		inputText.drawGameOver();
+ 		if(gameOver) {
+ 			inputText.drawGameOver();
+ 		}
  	}
  	// requestAnimationFrame(animate);
 }
