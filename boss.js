@@ -73,15 +73,14 @@ class Boss {
 	constructor () {
 		this.x = canvas.width/2;
 		this.y = canvas.height/2;
-		this.spriteWidth = 205;
+		this.spriteWidth = 192.89;
 		this.spriteHeight = 176;
 		this.width = this.spriteWidth/2;
 		this.height = this.spriteHeight/2
-		this.image = new Image();
-		this.image.src = "images/boss0.png";
+		this.image = bossImage;
 		this.frame = 0;
 		this.interval = 0;
-		this.frameInterval = 50;
+		this.frameInterval = 20;
 		this.life = 5;
 		this.oX = this.x + this.width;
 		this.oY = this.y + this.height;
@@ -91,19 +90,32 @@ class Boss {
 	update (deltaTime) {
 
 		this.interval += deltaTime;
+
 		if(this.interval >= this.frameInterval) {
-			this.image.src = `images/boss${this.frame}.png`;
-			this.frame++;
+			if(this.frame < 19) this.frame++;
+			else this.frame = 0;
 			this.interval = 0;
-			// console.log(this.frame);
 		}
+
 		
-		if(this.frame >= 19) this.frame = 0;
+
+
+		// this.frameInterval += deltaTime;
+
+		// if(this.frameInterval >= this.interval) {
+		// 	this.frame < 19 ? this.frame++ : this.frame = 0;
+		// 	this.frameInterval = 0;
+		// } 
+
+		
 	}
 
 	draw () {
-		ctx.drawImage(this.image, 0 , 0, this.spriteWidth,this.spriteHeight, this.x,this.y,
-			this.width,this.height)
+		ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight,
+			this.x,this.y, this.width,this.height)
+		// ctx.strokeStyle = "#fff";
+		// ctx.strokeRect(this.x,this.y,this.width,this.height);
+		// ctx.drawImage
 	}
 }
 
