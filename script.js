@@ -111,7 +111,6 @@ class Enemy {
 	update(deltaTime) {
 		this.y += this.velocityEnemy; 
 		if(this.y > canvas.height) {
-			// score++;
 			this.markedForDeletion = true;
 			lifes--;
 		} 
@@ -138,9 +137,9 @@ class Boss {
 		this.frame = 0;
 		this.interval = 0;
 		this.frameInterval = 20;
-		this.life = 5;
-		this.oX = this.x + this.width;
-		this.oY = this.y + this.height;
+		this.life = 3;
+		this.oX;
+		this.oY;
 		this.markedForDeletion = false;
 		this.velocityEnemy = Math.random() * 3 + 1;
 	}
@@ -148,6 +147,8 @@ class Boss {
 	update (deltaTime) {
 
 		this.interval += deltaTime;
+		this.oX = this.x + this.width;
+		this.oY = this.y + this.height;
 
 		this.y++;
 		// this.y += this.velocityEnemy;
@@ -158,7 +159,7 @@ class Boss {
 			this.interval = 0;
 		}
 
-		if(this.y > canvas.height + this.height) {
+		if(this.y > canvas.height) {
 			this.markedForDeletion = true;
 			lifes--;
 		}
@@ -167,7 +168,7 @@ class Boss {
 
 	draw () {
 		ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight,
-			this.x,this.y, this.width,this.height)
+			this.x,this.y, this.width,this.height);
 	}
 }
 
@@ -186,6 +187,8 @@ class Shoot {
 		this.oY;
 		this.colisionanX = false;
 		this.colisionanY = false;
+		this.colisionanXB = false;
+		this.colisionanYB = false
 	}
 
 	update(deltaTime, player, enemiesArray){
@@ -199,24 +202,28 @@ class Shoot {
 		this.oY = this.y + this.height;
 
 		bossArray.forEach( bossy => {
-			let distanceY = this.y - bossy.oY;
-			let distanceX = bossy.x - this.oX;
+			let distanceYB = this.y - bossy.oY;
+			let distanceXB = bossy.x - this.oX;
 
-			if(distanceX <= 0 && distanceX >= -(bossy.width + this.width)) {
-				this.colisionanX = true;
+			if(distanceXB <= 0 && distanceXB >= -(bossy.width + this.width)) {
+				this.colisionanXB = true;
 			} else {
-				this.colisionanX = false;	
+				this.colisionanXB = false;	
 			} 
 
-			if (distanceY <= 0 && distanceY >= -(bossy.height + this.height)) this.colisionanY = true;
-			else this.colisionanY = false;
+			if (distanceYB <= 0 && distanceYB >= -(bossy.height + this.height)) this.colisionanYB = true;
+			else this.colisionanYB = false;
 			
 
-			if(this.colisionanX && this.colisionanY) {
-				bossy.markedForDeletion = true;
+			if(this.colisionanXB && this.colisionanYB) {
+
 				this.markedForDeletion = true;
-				score++;
-				explosionArray.push(new Explosion(bossy.x, bossy.y, bossy.width));
+				bossy.life--;
+				if(bossy.life == 0) {
+					bossy.markedForDeletion = true;
+					score += 3;
+					explosionArray.push(new Explosion(bossy.x, bossy.y, bossy.width));
+				}
 			} 
 		});
 
@@ -247,7 +254,8 @@ class Shoot {
 
 	draw() {
 		ctx.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.x, this.y,
-			this.width, this.height)
+			this.width, this.height);
+
 	}
 
 }
@@ -380,8 +388,6 @@ function animate(timeStamp) {
 	player.draw();
 	inputText.update();
 	inputText.draw();
-	// newShoot.update(deltaTime);
-	// newShoot.draw();
 	shootArray.forEach( elem => {
 		elem.update(deltaTime, player, enemiesArray);
 		elem.draw();
@@ -403,16 +409,6 @@ function animate(timeStamp) {
 		timePerEnemy = 0;
 	}
 
-	enemiesArray.forEach( elem => {
-		elem.update(deltaTime);
-		elem.draw();
-	});
-
-	explosionArray.forEach( elem => {
-		elem.draw();
-		elem.update();
-	});
-
 	if(timePerBoss > intervalPerBoss) {
 		bossArray.push(new Boss());
 		timePerBoss = 0;
@@ -423,6 +419,15 @@ function animate(timeStamp) {
 		elem.draw();
 	});
 
+	enemiesArray.forEach( elem => {
+		elem.update(deltaTime);
+		elem.draw();
+	});
+
+	explosionArray.forEach( elem => {
+		elem.draw();
+		elem.update();
+	});
 
 	explosionArray = explosionArray.filter(elem => !elem.markedForDeletion);
 	shootArray = shootArray.filter(elem => !elem.markedForDeletion);
