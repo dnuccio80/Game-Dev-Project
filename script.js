@@ -7,30 +7,31 @@ let gameOver = false;
 let lifes = 3;
 let score = 0;
 let enemiesArray = [];
+let bossArray = [];
 let shootArray = [];
 let explosionArray = [];
-let gamePlay = false;
+let gamePlay = true;
 
 //Front End handlers
-const gotIt = document.getElementById("gotIt");
-const modalHowToPlay = document.querySelector('.modalHowToPlay');
-const buttonStart = document.querySelector('.buttonStart');
-const buttonHowTo = document.querySelector('.buttonHowTo');
+// const gotIt = document.getElementById("gotIt");
+// const modalHowToPlay = document.querySelector('.modalHowToPlay');
+// const buttonStart = document.querySelector('.buttonStart');
+// const buttonHowTo = document.querySelector('.buttonHowTo');
 
-gotIt.addEventListener('click', () => {
-	modalHowToPlay.style.display = "none";
-});
+// gotIt.addEventListener('click', () => {
+// 	modalHowToPlay.style.display = "none";
+// });
 
-buttonHowTo.addEventListener('click', ()=> {
-	modalHowToPlay.style.display = "block";
-});
+// buttonHowTo.addEventListener('click', ()=> {
+// 	modalHowToPlay.style.display = "block";
+// });
 
-buttonStart.addEventListener('click', ()=> {
-	modalGame.style.display = "none";
-	gamePlay = true;
-	gameOver = false;
-	animate(0);
-});
+// buttonStart.addEventListener('click', ()=> {
+// 	modalGame.style.display = "none";
+// 	gamePlay = true;
+// 	gameOver = false;
+// 	animate(0);
+// });
 
 
 class Player {
@@ -125,6 +126,51 @@ class Enemy {
 	}
 }
 
+class Boss {
+	constructor () {
+		this.spriteWidth = 192.89;
+		this.spriteHeight = 176;
+		this.width = this.spriteWidth/2;
+		this.height = this.spriteHeight/2
+		this.x = Math.random() * (canvas.width - this.width);
+		this.y = 0;
+		this.image = bossImage;
+		this.frame = 0;
+		this.interval = 0;
+		this.frameInterval = 20;
+		this.life = 5;
+		this.oX = this.x + this.width;
+		this.oY = this.y + this.height;
+		this.markedForDeletion = false;
+		this.velocityEnemy = Math.random() * 3 + 1;
+	}
+
+	update (deltaTime) {
+
+		this.interval += deltaTime;
+
+		this.y++;
+		// this.y += this.velocityEnemy;
+
+		if(this.interval >= this.frameInterval) {
+			if(this.frame < 19) this.frame++;
+			else this.frame = 0;
+			this.interval = 0;
+		}
+
+		if(this.y > canvas.height + this.height) {
+			this.markedForDeletion = true;
+			lifes--;
+		}
+
+	}
+
+	draw () {
+		ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight,
+			this.x,this.y, this.width,this.height)
+	}
+}
+
 class Shoot {
 
 	constructor() {
@@ -152,6 +198,28 @@ class Shoot {
 		this.oX = this.x + this.width;
 		this.oY = this.y + this.height;
 
+		bossArray.forEach( bossy => {
+			let distanceY = this.y - bossy.oY;
+			let distanceX = bossy.x - this.oX;
+
+			if(distanceX <= 0 && distanceX >= -(bossy.width + this.width)) {
+				this.colisionanX = true;
+			} else {
+				this.colisionanX = false;	
+			} 
+
+			if (distanceY <= 0 && distanceY >= -(bossy.height + this.height)) this.colisionanY = true;
+			else this.colisionanY = false;
+			
+
+			if(this.colisionanX && this.colisionanY) {
+				bossy.markedForDeletion = true;
+				this.markedForDeletion = true;
+				score++;
+				explosionArray.push(new Explosion(bossy.x, bossy.y, bossy.width));
+			} 
+		});
+
 		enemiesArray.forEach( enemy => {
 			let distanceY = this.y - enemy.oY;
 			let distanceX = enemy.x - this.oX;
@@ -173,6 +241,8 @@ class Shoot {
 				explosionArray.push(new Explosion(enemy.x, enemy.y, enemy.width));
 			} 
 		});
+
+		
 	}
 
 	draw() {
@@ -299,6 +369,8 @@ const inputText = new InputText();
 let lastTime = 1;
 let timePerEnemy = 0;
 let intervalPerEnemy = 1500;
+let timePerBoss = 0;
+let intervalPerBoss = 10000;
 
 function animate(timeStamp) {
 	const deltaTime = timeStamp - lastTime;
@@ -316,6 +388,7 @@ function animate(timeStamp) {
 	});
 
 	timePerEnemy += deltaTime;
+	timePerBoss += deltaTime;
 	
 
 	if(score > 20 && score <= 40) intervalPerEnemy = 1200;
@@ -340,10 +413,22 @@ function animate(timeStamp) {
 		elem.update();
 	});
 
+	if(timePerBoss > intervalPerBoss) {
+		bossArray.push(new Boss());
+		timePerBoss = 0;
+	}
+
+	bossArray.forEach( elem => {
+		elem.update(deltaTime);
+		elem.draw();
+	});
+
 
 	explosionArray = explosionArray.filter(elem => !elem.markedForDeletion);
 	shootArray = shootArray.filter(elem => !elem.markedForDeletion);
 	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
+	bossArray = bossArray.filter(elem => !elem.markedForDeletion);
+
  	if(!gameOver && gamePlay ){
  		requestAnimationFrame(animate);
  	} else {
