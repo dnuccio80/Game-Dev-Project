@@ -11,6 +11,7 @@ let bossArray = [];
 let shootArray = [];
 let explosionArray = [];
 let mushRoomArray = [];
+let mushAmountPrint = 0;
 let gamePlay = true;
 
 //Front End handlers
@@ -48,6 +49,8 @@ class Player {
 		this.interval = 20;
 		this.frameInterval = 0;
 		this.velocityPlayer = 7;
+		this.oX;
+		this.oY;
 	}
 
 	update(deltaTime, inputHandler) {
@@ -63,7 +66,10 @@ class Player {
 		if(this.x <= 0) this.x = 0;
 		if(this.x >= canvas.width - this.width) this.x = canvas.width - this.width;
 		if(this.y <= 0) this.y = 0;
-		if(this.y > canvas.height - this.height) this.y = canvas.height - this.height
+		if(this.y > canvas.height - this.height) this.y = canvas.height - this.height;
+
+		this.oX = this.x + this.width;
+		this.oY = this.y + this.height;
 
 
 		//Movement Handlers
@@ -85,7 +91,6 @@ class Player {
 	}
 
 	draw() {
-		// ctx.fillRect(this.x, this.y, this.width, this.height)
 		// 							sx,sy,sw,sh,dx,dy,dw,dh
 		ctx.drawImage(this.image, this.frame * this.spriteWidth, 0 , this.spriteWidth, this.spriteHeight,
 			this.x, this.y, this.width, this.height )
@@ -174,26 +179,57 @@ class Boss {
 
 class MushRoom {
 	constructor () {
-		this.x = canvas.width/2;
-		this.y = canvas.height/2;
 		this.spriteWidth = 501;
 		this.spriteHeight = 455;
 		this.width = this.spriteWidth / 7;
 		this.height = this.spriteHeight / 7;
+		this.x = Math.random() * (canvas.width - this.width);
+		this.y = Math.random() * (canvas.height - this.height*2);
 		this.frame = 0;
 		this.interval = 0;
 		this.frameInterval = 70;
 		this.markedForDeletion = false;
 		this.image = mussroomImage;
+		this.oX;
+		this.oY;
+		this.colisionanX = false;
+		this.colisionanY = false;
 	}
 
 	update(deltaTime) {
+
+		this.oX = this.x + this.width;
+		this.oY = this.y + this.height;
 
 		this.interval += deltaTime;	
 		if(this.interval > this.frameInterval) {
 			this.frame >= 4 ? this.frame = 0 : this.frame++;
 			this.interval = 0;
 		}
+
+		let distanceY = this.y - player.oY;
+		let distanceX = player.x - this.oX;
+
+
+		// let distanceY = this.y - enemy.oY;
+		// let distanceX = enemy.x - this.oX;
+
+			if(distanceX <= 0 && distanceX >= -(player.width + this.width)) {
+				this.colisionanX = true;
+			} else {
+				this.colisionanX = false;	
+			} 
+
+			if (distanceY <= 0 && distanceY >= -(player.height + this.height)) this.colisionanY = true;
+			else this.colisionanY = false;
+
+			if(this.colisionanX && this.colisionanY) {
+				this.markedForDeletion = true;
+				const mushAmount = document.getElementById("mushAmount");
+				mushAmountPrint++;
+				mushAmount.textContent = mushAmountPrint;
+			} 
+
 		
 	} 
 
@@ -412,6 +448,8 @@ let timePerEnemy = 0;
 let intervalPerEnemy = 1500;
 let timePerBoss = 0;
 let intervalPerBoss = 10000;
+let timePerMush = 0;
+let intervalPerMush = 10000;
 
 mushRoomArray.push(new MushRoom())
 
@@ -430,12 +468,9 @@ function animate(timeStamp) {
 
 	timePerEnemy += deltaTime;
 	timePerBoss += deltaTime;
+	timePerMush += deltaTime;
 	
-	mushRoomArray.forEach( elem => {
-		elem.update(deltaTime);
-		elem.draw();
-	});
-
+	
 	if(score > 20 && score <= 40) intervalPerEnemy = 1200;
 	else if ( score > 40 && score <= 60) intervalPerEnemy = 1000;
 	else if ( score > 60 && score <= 80) intervalPerEnemy = 800;
@@ -453,6 +488,11 @@ function animate(timeStamp) {
 	// 	timePerBoss = 0;
 	// }
 
+	if(timePerMush > intervalPerMush) {
+		mushRoomArray.push(new MushRoom());
+		timePerMush = 0;
+	}
+
 	bossArray.forEach( elem => {
 		elem.update(deltaTime);
 		elem.draw();
@@ -468,10 +508,16 @@ function animate(timeStamp) {
 		elem.update();
 	});
 
+	mushRoomArray.forEach( elem => {
+		elem.update(deltaTime, player);
+		elem.draw();
+	});
+
 	explosionArray = explosionArray.filter(elem => !elem.markedForDeletion);
 	shootArray = shootArray.filter(elem => !elem.markedForDeletion);
 	enemiesArray = enemiesArray.filter(elem => !elem.markedForDeletion);
 	bossArray = bossArray.filter(elem => !elem.markedForDeletion);
+	mushRoomArray = mushRoomArray.filter(elem => !elem.markedForDeletion);
 
  	if(!gameOver && gamePlay ){
  		requestAnimationFrame(animate);
