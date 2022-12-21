@@ -177,20 +177,25 @@ class MushRoom {
 		this.x = canvas.width/2;
 		this.y = canvas.height/2;
 		this.spriteWidth = 501;
-		this.spriteHeight = 501;
-		this.width = this.spriteWidth / 5;
-		this.height = this.spriteHeight / 5;
+		this.spriteHeight = 455;
+		this.width = this.spriteWidth / 7;
+		this.height = this.spriteHeight / 7;
 		this.frame = 0;
 		this.interval = 0;
-		this.frameInterval = 100;
+		this.frameInterval = 70;
 		this.markedForDeletion = false;
-		this.image = new Image();
-		this.image.src;
+		this.image = mussroomImage;
 	}
 
 	update(deltaTime) {
+
+		this.interval += deltaTime;	
+		if(this.interval > this.frameInterval) {
+			this.frame >= 4 ? this.frame = 0 : this.frame++;
+			this.interval = 0;
+		}
 		
-	}
+	} 
 
 	draw() {
 		ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight,

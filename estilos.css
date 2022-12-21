@@ -25,6 +25,40 @@ img {
 	display: none;
 }
 
+.tools img {
+	display: inherit;
+}
+
+.tools {
+	width: 150px;
+	height: fit-content;
+	position: absolute;
+	top: 13%;
+	left: 18%;
+	transform: translate(-13%,-18%);
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	background: #fff;
+	background: rgba( 255, 255, 255, 0 );
+	box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+	backdrop-filter: blur( 4px );
+	-webkit-backdrop-filter: blur( 4px );
+	border-radius: 10px;
+	border: 1px solid rgba( 255, 255, 255, 0.18 );
+	place-items: center;
+}
+
+.imgMushContainer {
+	background: transparent url("images/afro0.png") center center/cover no-repeat;
+	width: 60px;
+	height: 60px;
+}
+
+.tools h3 {
+	font-size: 28px;
+	color: #fff;
+}
+
 #modalGame {
 	color: #fff;
 	width: 400px;
