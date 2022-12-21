@@ -10,6 +10,7 @@ let enemiesArray = [];
 let bossArray = [];
 let shootArray = [];
 let explosionArray = [];
+let mushRoomArray = [];
 let gamePlay = true;
 
 //Front End handlers
@@ -114,7 +115,6 @@ class Enemy {
 			this.markedForDeletion = true;
 			lifes--;
 		} 
-
 		this.oX = this.x + this.width;
 		this.oY = this.y + this.height;
 	}
@@ -171,6 +171,34 @@ class Boss {
 			this.x,this.y, this.width,this.height);
 	}
 }
+
+class MushRoom {
+	constructor () {
+		this.x = canvas.width/2;
+		this.y = canvas.height/2;
+		this.spriteWidth = 501;
+		this.spriteHeight = 501;
+		this.width = this.spriteWidth / 5;
+		this.height = this.spriteHeight / 5;
+		this.frame = 0;
+		this.interval = 0;
+		this.frameInterval = 100;
+		this.markedForDeletion = false;
+		this.image = new Image();
+		this.image.src;
+	}
+
+	update(deltaTime) {
+		
+	}
+
+	draw() {
+		ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight,
+			this.x,this.y, this.width,this.height);
+	}
+
+}
+
 
 class Shoot {
 
@@ -380,6 +408,8 @@ let intervalPerEnemy = 1500;
 let timePerBoss = 0;
 let intervalPerBoss = 10000;
 
+mushRoomArray.push(new MushRoom())
+
 function animate(timeStamp) {
 	const deltaTime = timeStamp - lastTime;
 	lastTime = timeStamp;
@@ -396,6 +426,10 @@ function animate(timeStamp) {
 	timePerEnemy += deltaTime;
 	timePerBoss += deltaTime;
 	
+	mushRoomArray.forEach( elem => {
+		elem.update(deltaTime);
+		elem.draw();
+	});
 
 	if(score > 20 && score <= 40) intervalPerEnemy = 1200;
 	else if ( score > 40 && score <= 60) intervalPerEnemy = 1000;
@@ -404,15 +438,15 @@ function animate(timeStamp) {
 	else if ( score > 100 && score <= 120) intervalPerEnemy = 300;
 	else if ( score > 120)  intervalPerEnemy = 150;
 
-	if(timePerEnemy > intervalPerEnemy) {
-		enemiesArray.push(new Enemy())
-		timePerEnemy = 0;
-	}
+	// if(timePerEnemy > intervalPerEnemy) {
+	// 	enemiesArray.push(new Enemy())
+	// 	timePerEnemy = 0;
+	// }
 
-	if(timePerBoss > intervalPerBoss) {
-		bossArray.push(new Boss());
-		timePerBoss = 0;
-	}
+	// if(timePerBoss > intervalPerBoss) {
+	// 	bossArray.push(new Boss());
+	// 	timePerBoss = 0;
+	// }
 
 	bossArray.forEach( elem => {
 		elem.update(deltaTime);

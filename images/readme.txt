@@ -1,1 +1,0 @@
-Visit https://bevouliin.com to get more free 2D game assets.
