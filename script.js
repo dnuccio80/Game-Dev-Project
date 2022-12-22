@@ -194,6 +194,8 @@ class MushRoom {
 		this.oY;
 		this.colisionanX = false;
 		this.colisionanY = false;
+		this.audio = new Audio();
+		this.audio.src = "mush.wav";
 	}
 
 	update(deltaTime) {
@@ -228,6 +230,7 @@ class MushRoom {
 				const mushAmount = document.getElementById("mushAmount");
 				mushAmountPrint++;
 				mushAmount.textContent = mushAmountPrint;
+				this.audio.play();
 			} 
 
 		
@@ -347,7 +350,7 @@ class Explosion {
 	}
 
 	update () {
-		// if(this.frame == 0) this.audio.play();
+		if(this.frame == 0) this.audio.play();
 		this.frame++;
 		if(this.frame > 4) this.markedForDeletion = true;
 
@@ -372,6 +375,7 @@ class InputHandler {
 				 e.key === "ArrowDown"  || 
 				 e.key === "ArrowLeft"  || 
 				 e.key === "ArrowRight" ||
+				 e.key === "x"			||
 				 e.key === "z"  ) &&
 				 this.keys.indexOf(e.key) === -1  ) {
 				this.keys.push(e.key);
@@ -384,6 +388,7 @@ class InputHandler {
 				   e.key === "ArrowDown"  ||
 				   e.key === "ArrowLeft"  ||
 				   e.key === "ArrowRight" ||
+				   e.key === "x"		  ||
 				   e.key === "z" ) {
 
 				this.keys.splice(this.keys.indexOf(e.key), 1);
@@ -393,6 +398,26 @@ class InputHandler {
 		window.addEventListener('keydown', e => {
 			if( e.key === "z" ) {
 				shootArray.push(new Shoot());
+			}
+		});
+
+		window.addEventListener('keydown', e => {
+			if(e.key === "x") {
+				const mushAmount = document.getElementById("mushAmount");
+				if(mushAmountPrint > 0)	{
+					mushAmountPrint--;
+					enemiesArray.forEach( elem => {
+						elem.markedForDeletion = true;
+						explosionArray.push(new Explosion(elem.x, elem.y, elem.width));
+						score++;
+					});
+					bossArray.forEach( elem => {
+						elem.markedForDeletion = true;
+						explosionArray.push(new Explosion(elem.x, elem.y, elem.width));
+						score+=3;
+					});
+				} 
+				mushAmount.textContent = mushAmountPrint;
 			}
 		});
 	}
@@ -478,15 +503,15 @@ function animate(timeStamp) {
 	else if ( score > 100 && score <= 120) intervalPerEnemy = 300;
 	else if ( score > 120)  intervalPerEnemy = 150;
 
-	// if(timePerEnemy > intervalPerEnemy) {
-	// 	enemiesArray.push(new Enemy())
-	// 	timePerEnemy = 0;
-	// }
+	if(timePerEnemy > intervalPerEnemy) {
+		enemiesArray.push(new Enemy())
+		timePerEnemy = 0;
+	}
 
-	// if(timePerBoss > intervalPerBoss) {
-	// 	bossArray.push(new Boss());
-	// 	timePerBoss = 0;
-	// }
+	if(timePerBoss > intervalPerBoss) {
+		bossArray.push(new Boss());
+		timePerBoss = 0;
+	}
 
 	if(timePerMush > intervalPerMush) {
 		mushRoomArray.push(new MushRoom());
