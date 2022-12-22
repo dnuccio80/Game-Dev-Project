@@ -12,28 +12,28 @@ let shootArray = [];
 let explosionArray = [];
 let mushRoomArray = [];
 let mushAmountPrint = 0;
-let gamePlay = true;
+let gamePlay = false;
 
 //Front End handlers
-// const gotIt = document.getElementById("gotIt");
-// const modalHowToPlay = document.querySelector('.modalHowToPlay');
-// const buttonStart = document.querySelector('.buttonStart');
-// const buttonHowTo = document.querySelector('.buttonHowTo');
+const gotIt = document.getElementById("gotIt");
+const modalHowToPlay = document.querySelector('.modalHowToPlay');
+const buttonStart = document.querySelector('.buttonStart');
+const buttonHowTo = document.querySelector('.buttonHowTo');
 
-// gotIt.addEventListener('click', () => {
-// 	modalHowToPlay.style.display = "none";
-// });
+gotIt.addEventListener('click', () => {
+	modalHowToPlay.style.display = "none";
+});
 
-// buttonHowTo.addEventListener('click', ()=> {
-// 	modalHowToPlay.style.display = "block";
-// });
+buttonHowTo.addEventListener('click', ()=> {
+	modalHowToPlay.style.display = "block";
+});
 
-// buttonStart.addEventListener('click', ()=> {
-// 	modalGame.style.display = "none";
-// 	gamePlay = true;
-// 	gameOver = false;
-// 	animate(0);
-// });
+buttonStart.addEventListener('click', ()=> {
+	modalGame.style.display = "none";
+	gamePlay = true;
+	gameOver = false;
+	animate(0);
+});
 
 
 class Player {
@@ -260,10 +260,16 @@ class Shoot {
 		this.colisionanX = false;
 		this.colisionanY = false;
 		this.colisionanXB = false;
-		this.colisionanYB = false
+		this.colisionanYB = false;
+		this.audio = new Audio();
+		this.audio.src = "laser1.wav";
+		this.frame = 0;
+		this.audio.volume = 0.1;
 	}
 
 	update(deltaTime, player, enemiesArray){
+		if(this.frame == 0) this.audio.play();
+		this.frame++
 		this.y-= deltaTime;
 		if(this.y < 0) {
 			this.markedForDeletion = true;
@@ -347,6 +353,7 @@ class Explosion {
 		this.audio = new Audio();
 		this.audio.src = "boom.wav";
 		this.markedForDeletion = false;
+		this.audio.volume = 0.2;
 	}
 
 	update () {
